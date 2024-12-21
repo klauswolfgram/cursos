@@ -1,0 +1,45 @@
+* {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    border: 0;
+}
+
+body {
+    padding: .5em;
+    background-color: black;
+}
+
+header {
+    border: 1px solid blueviolet;
+    margin-bottom: .5em;
+    padding: .5em;
+}
+
+main {
+    border: 1px solid blueviolet;
+    padding: .5em;
+}
+
+p {
+    font-family: "Play";
+    font-size: 10px;
+    color: blue;
+}
+
+.title {
+    font-family: "Press Start 2P";
+    font-style: normal;
+    font-size: 15px;
+    color: blue;    
+}
+
+.loading {
+    width: 30px;
+    display: block;
+    margin: auto;
+}
+
+.hidden {
+    display: none;
+}
