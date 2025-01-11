@@ -1,0 +1,102 @@
+#include 'totvs.ch'
+#include 'tlpp-core.th'
+
+namespace yt.api
+
+/*/{Protheus.doc} U_GET_LIST
+    Funcao API para listagem de entidades conforme passagem de parametros
+    @type  Function
+    @author Klaus Wolfgram
+    @since 19/01/2024
+    @version 1.0
+    /*/
+
+@get('/api/list/:entidade')
+
+Function U_GET_LIST as logical
+
+    Local jHeaderRes  := jsonObject():new()           as json
+    Local jPath       := oRest:getPathParamsRequest() as json
+    Local jResult     := jsonObject():new()           as json
+    Local jReg        := jsonObject():new()           as json
+    Local aResult     := array(0)                     as array
+    Local cEntidade   := jPath['entidade']            as character
+    Local lRPC        := .F.                          as logical
+
+    jHeaderRes['Content-Type'] := 'application/json;charset=cp1252'
+    oRest:setHeaderResponse(jHeaderRes)    
+
+    IF type('cEmpAnt') == 'U'
+
+        rpcSetType(3)
+        rpcSetEnv('99','01')
+        lRPC            := .T.
+
+    EndIF  
+
+    DO CASE
+
+        CASE cEntidade == 'SA1'
+
+            SA1->(dbSetOrder(1),dbGoTop())
+
+            While .not. SA1->(eof())
+
+                jReg := jsonObject():new()
+                jReg['codigo'   ] := SA1->A1_COD
+                jReg['loja'     ] := SA1->A1_LOJA
+                jReg['nome'     ] := SA1->A1_NOME
+                jReg['nreduz'   ] := SA1->A1_NREDUZ
+                jReg['bloqueado'] := if(SA1->A1_MSBLQL == '1','Sim','Nao')
+
+                cEndereco         := alltrim(SA1->A1_END)
+                cEndereco         += ', ' + alltrim(SA1->A1_BAIRRO)
+                cEndereco         += ', ' + alltrim(SA1->A1_MUN   )
+                cEndereco         += ', ' + alltrim(SA1->A1_EST   )
+
+                jReg['endereco' ] := cEndereco
+
+                aadd(aResult,jReg)
+
+                SA1->(dbSkip())
+
+            Enddo        
+
+        CASE cEntidade == 'SA2'
+
+            SA2->(dbSetOrder(1),dbGoTop())
+
+            While .not. SA2->(eof())
+
+                jReg := jsonObject():new()
+                jReg['codigo'   ] := SA2->A2_COD
+                jReg['loja'     ] := SA2->A2_LOJA
+                jReg['nome'     ] := SA2->A2_NOME
+                jReg['nreduz'   ] := SA2->A2_NREDUZ
+                jReg['bloqueado'] := if(SA2->A2_MSBLQL == '1','Sim','Nao')
+
+                cEndereco         := alltrim(SA2->A2_END)
+                cEndereco         += ', ' + alltrim(SA2->A2_BAIRRO)
+                cEndereco         += ', ' + alltrim(SA2->A2_MUN   )
+                cEndereco         += ', ' + alltrim(SA2->A2_EST   )
+
+                jReg['endereco' ] := cEndereco
+
+                aadd(aResult,jReg)
+
+                SA2->(dbSkip())
+
+            Enddo
+
+    END CASE    
+
+    jResult['entidade'] := cEntidade
+    jResult['result']   := aResult
+
+    oRest:setResponse(jResult:toJson())
+
+    IF lRPC
+        rpcClearEnv()
+    EndIF
+    
+Return .T.
